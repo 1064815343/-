@@ -1,0 +1,93 @@
+import math
+class Point(object):
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+
+JD1 = Point(33158,50470)
+JD2 = Point(34105,51629.6)
+JD3 = Point(34364.306,52585.9)
+
+JD1toJD2_increase_x = JD2.x - JD1.x
+JD1toJD2_increase_y = JD2.y - JD1.y
+
+JD2toJD3_increase_x = JD3.x - JD2.x
+JD2toJD3_increase_y = JD3.y - JD2.y
+
+alpha12 = float(math.atan(abs(JD1toJD2_increase_y/JD1toJD2_increase_x)))
+alpha23 = float(math.atan(abs(JD2toJD3_increase_y/JD2toJD3_increase_x)))
+
+alpha0 = alpha23 - alpha12
+
+R = 2000
+L0 = 300
+
+m = L0/2 - L0**3/(240*R**2)
+P = L0**2/(24*R)
+
+beta = L0/(2*R)
+TH = (R+P)*math.tan(alpha0/2) + m
+LH = R*(alpha0 - 2*beta) + 2*L0
+EH = (R+P)*(1/math.cos(alpha0/2)) - R
+DH = 2*TH - LH
+L12 = ((JD1toJD2_increase_x)**2+(JD1toJD2_increase_y)**2)**(1/2)
+LZH2 = L12 - TH
+LHY2 = L0
+LHZ2 = LH
+LQZ2 = LHZ2 - LH/2
+LYH2 = LHZ2 - L0
+
+def coordinate(length,angle,lenght_x,length_y):
+    X_increase = length*math.cos(angle)
+    Y_increase = length*math.sin(angle)
+    x = lenght_x + X_increase
+    y = length_y + Y_increase
+    return x,y
+
+def ZH2_HY2_HZ2(length,alpha12,R,L0):
+    X_increase = length - length**5/(40*R**2*L0**2)
+    Y_increase = length**3/(6*R*L0)
+    angle1 = math.atan(abs(Y_increase/X_increase))
+    angle2 = alpha12 + angle1
+    l = ((X_increase)**2+(Y_increase)**2)**(1/2)
+    return angle2,l
+
+
+
+def ZH2_QZ2_YH2(length,angle12,beta,m,P,R,L0):
+    X_increase = R*math.sin((length-L0)/R+beta) + m
+    Y_increase = R*(1-math.cos((length-L0)/R+beta)) + P
+    angle1 = math.atan(abs(Y_increase/X_increase))
+    angle2 = angle12 + angle1
+    l = ((X_increase)**2+(Y_increase)**2)**(1/2)
+    return angle2, l
+
+print(JD1toJD2_increase_x)
+print(JD1toJD2_increase_y)
+print(JD2toJD3_increase_x)
+print(JD2toJD3_increase_y)
+
+
+result_coordinate = coordinate(LZH2,alpha12,JD1.x,JD1.y)
+print("直缓点ZH2的坐标为",coordinate(LZH2,alpha12,JD1.x,JD1.y))
+
+result_ZH2_HY2_HZ2_1 = ZH2_HY2_HZ2(LHY2,alpha12,R,L0)
+print("缓圆点HY2的坐标为",coordinate(result_ZH2_HY2_HZ2_1[1],result_ZH2_HY2_HZ2_1[0],result_coordinate[0],result_coordinate[1]))
+
+result_ZH2_QZ2_YH2_1 = ZH2_QZ2_YH2(LQZ2,alpha12,beta,m,P,R,L0)
+print("曲中点QZ2的坐标为",coordinate(result_ZH2_QZ2_YH2_1[1],result_ZH2_QZ2_YH2_1[0],result_coordinate[0],result_coordinate[1]))
+
+result_ZH2_QZ2_YH2_2 = ZH2_QZ2_YH2(LYH2,alpha12,beta,m,P,R,L0)
+print("圆缓点YH2的坐标为",coordinate(result_ZH2_QZ2_YH2_2[1],result_ZH2_QZ2_YH2_2[0],result_coordinate[0],result_coordinate[1]))
+
+result_ZH2_HY2_HZ2_2 = ZH2_HY2_HZ2(LHZ2,alpha12,R,L0)
+print("缓直点HZ2的坐标为",coordinate(result_ZH2_HY2_HZ2_2[1],result_ZH2_HY2_HZ2_2[0],result_coordinate[0],result_coordinate[1]))
+
+print("切线长T=",TH)
+print("曲线长L=",LH)
+print("外距E=",EH)
+print("切曲差D=",DH)
+
+print("偏角=",alpha0*180/math.pi)
+print("偏角=",alpha12*180/math.pi)
+print("偏角=",alpha23*180/math.pi)
